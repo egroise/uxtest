@@ -127,7 +127,7 @@ def endTest():
         _html("<td width='"+str(1* (300.0 * srate))+"' style='background:green;'>.</td></tr></table>")    
     _html("</BODY></HTML>")
     if _UXTST_OPENREPORT_:
-        showReport()
+        showTestReport()
       
 #------------------------------------------------------------------------------
 def showTestReport():
@@ -407,7 +407,7 @@ def _isended():
       if _UXTST_SESSION_ == "ENDED":
         enddone = True
     if not enddone:
-      _error("You must call uxtst.end() before calling showReport() !")
+      _error("You must call uxtst.end() before calling showTestReport() !")
       sys.exit()
 
 def _out(txt):
