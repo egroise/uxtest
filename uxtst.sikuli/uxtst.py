@@ -3,7 +3,7 @@
 #| | | |\ \/ / |_   _|___  ___ | |_  ___ 
 #| | | | \  /    | | / _ \/ __|| __|/ __|
 #| |_| | /  \    | ||  __/\__ \| |_ \__ \
-# \___/ /_/\_\   |_| \___||___/ \__||___/  v0.9 - December 2014
+# \___/ /_/\_\   |_| \___||___/ \__||___/  v0.10 - January 2014
 #                                        
 ###############################################################################
 # Author : Eric GROISE
@@ -51,12 +51,12 @@ def startTest(outputPath,options=""):
     else:
         _UXTST_SPECIALMODE_ = False
                                 
-    if outputPath.find('\\') == -1:
-         _UXTST_OUTPUT_PATH_ = os.environ["USERPROFILE"]+"\\Desktop\\"+outputPath
+    if outputPath.find(os.path) == -1:
+         _UXTST_OUTPUT_PATH_ = os.environ["USERPROFILE"]+os.path+"Desktop"+os.path+outputPath
     else:
         _UXTST_OUTPUT_PATH_ = outputPath
-    if not _UXTST_OUTPUT_PATH_.endswith("\\"):
-        _UXTST_OUTPUT_PATH_ = _UXTST_OUTPUT_PATH_ + "\\"
+    if not _UXTST_OUTPUT_PATH_.endswith(os.path):
+        _UXTST_OUTPUT_PATH_ = _UXTST_OUTPUT_PATH_ + os.path
     _out("Report output is " + _UXTST_OUTPUT_PATH_)
 
     MXUX_VERSION = "0.9"
@@ -296,8 +296,8 @@ def restrictScanToFocusedWindow():
     morphTo(reg)
     
 def openApplication(command):
-    if command.find('\\') == -1:
-        command = os.environ["USERPROFILE"]+"\\Desktop\\"+command
+    if command.find(os.path) == -1:
+        command = os.environ["USERPROFILE"]+os.path+"Desktop"+os.path+command
     #popup("Sorry, but you made a mistake using MXUX !\n\n" + message);        
     openApp(command)
 
