@@ -135,7 +135,10 @@ def showTestReport():
 # Must be called after end()
 #------------------------------------------------------------------------------
     _isended()
-    openApp("explorer.exe " + os.path.join(_UXTST_OUTPUT_PATH_,_UXTST_HTML_FILE_))
+    if (_isOnWindows()):
+        openApp("explorer.exe " + os.path.join(_UXTST_OUTPUT_PATH_,_UXTST_HTML_FILE_))
+    else:
+        os.system("open /Applications/Safari.app 'file://" + os.path.join(_UXTST_OUTPUT_PATH_,_UXTST_HTML_FILE_) + "'")
 
 def isVisible(pattern,param1 = "_UNDEFINED_", param2 = "_UNDEFINED_"):
     return visible(pattern, param1 , param2)
@@ -412,3 +415,6 @@ def _isended():
 
 def _out(txt):
     print "UXTST>" + txt
+
+def _isOnWindows():
+    return os.sep == "\\";
