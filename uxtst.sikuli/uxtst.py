@@ -90,7 +90,7 @@ def startTest(outputPath,options=""):
     _html("<style type='text/css'>thead {font-weight: bold;background-color: #F0F0F0;} html {font-family: Arial;}.error {background-color: #FFE6E7;color: #FF0000;}TD {border-style: solid solid;border-width: 1px;border-color: #AAAAAA #EEEEEE #AAAAAA #EEEEEE ;padding-left: 3px;padding-right:15px}table {border-collapse: collapse;}thead {padding-right: 20px;}</style>")
     _html("</head>")    
     _html("<body>")    
-    _html("<H3><font color=999999>Tests started at </font>"+str(datetime.now())+" <font color=999999 size=-1>(<href='https://github.com/egroise/uxtest'>UXTEST</a> <sup>"+MXUX_VERSION+"</sup>)</font></H3>")
+    _html("<H3><font color=999999>Tests started at </font>"+str(datetime.now())+" <font color=999999 size=-1>(<a href='https://github.com/egroise/uxtest/wiki'>UXTEST</a> <sup>"+MXUX_VERSION+"</sup>)</font></H3>")
     _html("<TABLE><THEAD><TR><TD>Time</TD><TD>Status</TD><TD>Message</TD><TD>Delay</TD><TD>Screenshot</TD><TD>Pattern</TD></TR></THEAD>")
     _new_xml("<UITEST>")
     _xml("<StartTime>" + datetime.now().strftime("%d %m %Y %H:%M:%S") + "</StartTime>")
