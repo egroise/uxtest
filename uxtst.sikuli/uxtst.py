@@ -3,12 +3,13 @@
 #| | | |\ \/ / |_   _|___  ___ | |_  ___ 
 #| | | | \  /    | | / _ \/ __|| __|/ __|
 #| |_| | /  \    | ||  __/\__ \| |_ \__ \
-# \___/ /_/\_\   |_| \___||___/ \__||___/  v0.10 - January 2014
+# \___/ /_/\_\   |_| \___||___/ \__||___/  v1.0 - January 2014
 #                                        
 ###############################################################################
 # Author : Eric GROISE
+# More information : https://github.com/egroise/uxtest/wiki
+# Under MIT License: https://github.com/egroise/uxtest/blob/master/LICENSE
 ###############################################################################                                                      
-                                        
 
 from sikuli.Sikuli import *
 import os
@@ -24,6 +25,7 @@ setFindFailedResponse(ABORT)
 
 #------------------------------------------------------------------------------
 def startTest(outputPath,options=""):
+#------------------------------------------------------------------------------
 # Starts the tests session.
 # Must be called first, before anything else.
 #   outputPath : Path where the reports will be generated
@@ -42,6 +44,12 @@ def startTest(outputPath,options=""):
     global _UXTST_OPENREPORT_
     global _UXTST_SPECIALMODE_
 
+    _UXTST_VERSION_ = "1.0"
+    _out("UXTEST v"+_UXTST_VERSION_)
+
+    if getNumberScreens() > 1:
+        _out("Warning: You have multiple screens! Only primary monitor will be observed.")
+
     if (os.getenv("UXTST_OUTPUT_PATH","") != ""):
         outputPath = os.environ["UXTST_OUTPUT_PATH"]
         _out("-- Sikuli Test Launcher mode detected")                
@@ -49,23 +57,21 @@ def startTest(outputPath,options=""):
         _out("-- Enabling SPECIAL mode")  
         _UXTST_SPECIALMODE_ = True
     else:
-        _UXTST_SPECIALMODE_ = False
-                                
+        _UXTST_SPECIALMODE_ = False                                 
     if outputPath.find(os.sep) == -1:
-         _UXTST_OUTPUT_PATH_ = os.environ["USERPROFILE"]+os.sep+"Desktop"+os.sep+outputPath
+         _UXTST_OUTPUT_PATH_ = os.path.join(_getDesktopPath(),outputPath)
     else:
         _UXTST_OUTPUT_PATH_ = outputPath
-    if not _UXTST_OUTPUT_PATH_.endswith(os.sep):
-        _UXTST_OUTPUT_PATH_ = _UXTST_OUTPUT_PATH_ + os.sep
     _out("Report output is " + _UXTST_OUTPUT_PATH_)
-
-    MXUX_VERSION = "0.9"
+    if not _UXTST_OUTPUT_PATH_.endswith(os.sep):
+        _UXTST_OUTPUT_PATH_  = _UXTST_OUTPUT_PATH_  + os.sep
+    
     _UXTST_ASSERT_FAIL_COUNTER_ = 0
     _UXTST_ASSERT_COUNTER_ = 0
     _UXTST_SCREENSHOTS_COUNTER_ = 1
-    _UXTST_LOG_FILE_ = "uitest.log"
-    _UXTST_HTML_FILE_ = "uitest.html"     
-    _UXTST_XML_FILE_ = "uitest.xml"     
+    _UXTST_LOG_FILE_ = "test.log"
+    _UXTST_HTML_FILE_ = "test.html"     
+    _UXTST_XML_FILE_ = "test.xml"     
     _UXTST_START_TIME_ = datetime.now()
     _UXTST_SESSION_ = "RUNNING"
     _UXTST_BATCH_ = ("BATCHMODE" in options)
@@ -73,30 +79,31 @@ def startTest(outputPath,options=""):
 
     if _UXTST_SPECIALMODE_:
         _UXTST_BATCH_ = True
-        _UXTST_OPENREPORT_ = False
-                
+        _UXTST_OPENREPORT_ = False           
     try:
-        file = open(_UXTST_OUTPUT_PATH_ + _UXTST_LOG_FILE_,"w")
+        file = open(os.path.join(_UXTST_OUTPUT_PATH_,_UXTST_LOG_FILE_),"w")
     except IOError:        
         if _UXTST_BATCH_ or (question("Reporting folder","Given reporting folder does not exist :\n"+_UXTST_OUTPUT_PATH_+"\nDo you want to create it?")):
             os.makedirs(_UXTST_OUTPUT_PATH_)
-            file = open(_UXTST_OUTPUT_PATH_ + _UXTST_LOG_FILE_,"w")
+            file = open(os.path.join(_UXTST_OUTPUT_PATH_,_UXTST_LOG_FILE_),"w")
         else:
             sys.exit()
     file.write(str(datetime.now())+" Starting\n")
     file.close()
     _new_html("<HTML>")
     _html("<head>")
-    _html("<style type='text/css'>thead {font-weight: bold;background-color: #F0F0F0;} html {font-family: Arial;}.error {background-color: #FFE6E7;color: #FF0000;}TD {border-style: solid solid;border-width: 1px;border-color: #AAAAAA #EEEEEE #AAAAAA #EEEEEE ;padding-left: 3px;padding-right:15px}table {border-collapse: collapse;}thead {padding-right: 20px;}</style>")
+    _html("<style type='text/css'>thead {font-weight: bold;background-color: #F0F0F0;} html {font-family: Arial;} .error {background-color: red;color: #FFFFFF;} .success {background-color: green;color: #FFFFFF;} .comment {background-color: grey;color: #FFFFFF;} TD {border-style: solid solid;border-width: 1px;border-color: #AAAAAA #EEEEEE #AAAAAA #EEEEEE ;padding-left: 3px;padding-right:15px}table {border-collapse: collapse;}thead {padding-right: 20px;}</style>")
     _html("</head>")    
-    _html("<body>")    
-    _html("<H3><font color=999999>Tests started at </font>"+str(datetime.now())+" <font color=999999 size=-1>(<a href='https://github.com/egroise/uxtest/wiki'>UXTEST</a> <sup>"+MXUX_VERSION+"</sup>)</font></H3>")
-    _html("<TABLE><THEAD><TR><TD>Time</TD><TD>Status</TD><TD>Message</TD><TD>Delay</TD><TD>Screenshot</TD><TD>Pattern</TD></TR></THEAD>")
-    _new_xml("<UITEST>")
+    _html("<body>")   
+    _html("<div style='position:absolute;top:0px;right:10px'><font color=999999><a href='https://github.com/egroise/uxtest/wiki'>UXTEST</a><sup>"+_UXTST_VERSION_+"</sup></font></div>")
+    _html("<H3><font color=999999>Tests started at </font>"+str(datetime.now())+"</H3>")
+    _html("<TABLE><THEAD><TR><TD>Time</TD><TD>Assertion</TD><TD>Status</TD><TD>Message</TD><TD>Waited (Max)</TD><TD>Screenshot</TD><TD>Search pattern</TD></TR></THEAD>")
+    _new_xml("<TEST>")
     _xml("<StartTime>" + datetime.now().strftime("%d %m %Y %H:%M:%S") + "</StartTime>")
     
 #------------------------------------------------------------------------------
 def endTest():
+#------------------------------------------------------------------------------
 # Ends the tests session. (Reports are finalized)
 # The only function you can call after 
 #------------------------------------------------------------------------------
@@ -120,7 +127,7 @@ def endTest():
     _xml("<FailedTestsCount>" + str(_UXTST_ASSERT_FAIL_COUNTER_) + "</FailedTestsCount>")    
     _xml("<SuccessfulTestsCount>" + str(_UXTST_ASSERT_COUNTER_-_UXTST_ASSERT_FAIL_COUNTER_) + "</SuccessfulTestsCount>")    
     _html("<table><tr>")
-    _xml("</UITEST>")    
+    _xml("</TEST>")    
     if _UXTST_ASSERT_FAIL_COUNTER_ > 0:
         _html("<td width='"+str(1* (300.0 * frate))+"' style='background:red;'>.</td>")
     if _UXTST_ASSERT_COUNTER_-_UXTST_ASSERT_FAIL_COUNTER_ > 0:
@@ -131,6 +138,7 @@ def endTest():
       
 #------------------------------------------------------------------------------
 def showTestReport():
+#------------------------------------------------------------------------------
 # Opens the HTML report in the defauly browser.
 # Must be called after end()
 #------------------------------------------------------------------------------
@@ -145,8 +153,10 @@ def isVisible(pattern,param1 = "_UNDEFINED_", param2 = "_UNDEFINED_"):
     
 #------------------------------------------------------------------------------
 def visible(pattern, param1 = "_UNDEFINED_", param2 = "_UNDEFINED_"):
+#------------------------------------------------------------------------------
 # Usage : expects(pattern)
 #         expects(pattern, message)
+#         expects(pattern, delay)
 #         expects(pattern, delay, message)
 # This test is successful is given pattern is visible in the screen. 
 # If no delay is provided, it will not wait at all (pattern expected at call)
@@ -154,115 +164,153 @@ def visible(pattern, param1 = "_UNDEFINED_", param2 = "_UNDEFINED_"):
 #------------------------------------------------------------------------------
     _isrunning()
     delay = 0
-    message = "(undefined)"
+    message = ""
     if param1 <> "_UNDEFINED_":
         if isinstance(param1,str):
             message = param1
         else:
             delay = param1
     if param2 <> "_UNDEFINED_":
-        message = param2;
+        if isinstance(param2,str):
+            message = param2
+        else:
+            delay = param2
     _isrunning()
     from datetime import datetime
     date = datetime.now()
     try:
         wait(pattern,delay)   
-        delay = datetime.now() - date
-        _logOK(message,delay)
+        delta = datetime.now() - date
+        _reportTestSuccess("visible",message,delta,delay)
         return True
     except FindFailed:
-        delay =datetime.now() - date    
-        _logKO(message,delay) 
-        _out(os.path.join(_UXTST_OUTPUT_PATH_,"Fail " + str(_UXTST_ASSERT_FAIL_COUNTER_) + " pattern.png"))
+        delta =datetime.now() - date    
+        _reportTestFailure("visible",message,delta,delay) 
+        _out(os.path.join(_UXTST_OUTPUT_PATH_,"visible Fail " + str(_UXTST_ASSERT_FAIL_COUNTER_) + " pattern.png"))
         _out(_picfind(pattern))
         shutil.copy(_picfind(pattern),os.path.join(_UXTST_OUTPUT_PATH_,"Fail " + str(_UXTST_ASSERT_FAIL_COUNTER_) + " pattern.png"))
         return False  
 
    
 #------------------------------------------------------------------------------
-def notVisible(pattern, name = "(undefined)"):
+def notVisible(pattern, message = ""):
+#------------------------------------------------------------------------------
 # This test is successful if the given pattern is not visible in the screen.
 # Returns True if test is successful (False otherwise)
 #------------------------------------------------------------------------------
     _isrunning()
     if (not exists(pattern)):
-        _logOK(name)
+        _reportTestSuccess("notVisible",message)
         return True
     else:
-        _logKO(name + " found when it should not")
+        _reportTestFailure("notVisible",message)
         shutil.copy(_picfind(pattern),os.path.join(_UXTST_OUTPUT_PATH_,"Fail " + str(_UXTST_ASSERT_FAIL_COUNTER_) + " pattern.png"))
         return False
+
+#------------------------------------------------------------------------------
+def reportTestFail(message):
+#------------------------------------------------------------------------------
+    _reportTestFailure("(custom)",message) 
+
+#------------------------------------------------------------------------------
+def reportTestSucceeded(message):
+#------------------------------------------------------------------------------
+    _reportTestSuccess("(custom)",message) 
 
 ###############################################################################   
 # UTILITIES FUNCTIONS
 ###############################################################################   
 
+#------------------------------------------------------------------------------
 def newClick(*args):
-    # Same as the native click() function but supporting timeout. Default timeout is 1s.    
+#------------------------------------------------------------------------------
+# Same as the native click() function but supporting timeout. Default timeout is 1s.    
     nargs = len(args)
     if isinstance(args[nargs-1],int):
         timeout = args[nargs-1]
         nargs = nargs -1
     else:
-        timeout = 1
+        timeout = 1   
     for i in range(nargs):
         pattern = args[i]
         if exists(pattern,timeout):
             click(pattern)
         else:
-            _logKO("Click failed after "+str(timeout)+"s") 
+            _reportTestFailure("newClick","Click failed after "+str(timeout)+"s") 
             shutil.copy(_picfind(pattern),os.path.join(_UXTST_OUTPUT_PATH_,"Fail " + str(_UXTST_ASSERT_FAIL_COUNTER_) + " pattern.png"))
 
+#------------------------------------------------------------------------------
 def wClick(pattern,timeout = 1):
+#------------------------------------------------------------------------------
     waitingClick(pattern,timeout)
     
+#------------------------------------------------------------------------------
 def waitingClick(pattern,timeout = 1):
+#------------------------------------------------------------------------------
 # Same as the native click() function but supporting timeout. Default timeout is 1s.
     if exists(pattern,timeout):
         click(pattern)
     else:
-        _logKO("Click failed after "+str(timeout)+"s") 
+        _reportTestFailure("waitingClick","Click failed after "+str(timeout)+"s") 
         shutil.copy(_picfind(pattern),os.path.join(_UXTST_OUTPUT_PATH_,"Fail " + str(_UXTST_ASSERT_FAIL_COUNTER_) + " pattern.png"))
 
+#------------------------------------------------------------------------------
 def wDoubleClick(pattern,timeout = 1):
+#------------------------------------------------------------------------------
     waitingDoubleclick(pattern,timeout)
         
+#------------------------------------------------------------------------------
 def waitingDoubleClick(pattern,timeout = 1):
+#------------------------------------------------------------------------------
 # Same as the native click() function but supporting timeout. Default timeout is 1s.
     if exists(pattern,timeout):
         doubleClick(pattern)
     else:
-        _logKO("Double click failed after "+str(timeout)+"s") 
+        _reportTestFailure("waitingDoubleClick","Double click failed after "+str(timeout)+"s") 
         shutil.copy(_picfind(pattern),os.path.join(_UXTST_OUTPUT_PATH_,"Fail " + str(_UXTST_ASSERT_FAIL_COUNTER_) + " pattern.png"))
 
+#------------------------------------------------------------------------------
 def oClick(pattern):
+#------------------------------------------------------------------------------
     optionalClick(pattern)
     
+#------------------------------------------------------------------------------
 def optionalClick(pattern):    
+#------------------------------------------------------------------------------
     if (pattern == False):
         return
     if exists(pattern,1):
         click(pattern)
 
+#------------------------------------------------------------------------------
 def oDoubleClick(pattern):
+#------------------------------------------------------------------------------
     optionalDoubleClick(pattern)
     
+#------------------------------------------------------------------------------
 def optionalDoubleClick(pattern):
+#------------------------------------------------------------------------------
     if (pattern == False):
         return
     if exists(pattern,1):
         doubleClick(pattern)   
             
+#------------------------------------------------------------------------------
 def takeScreenshot(name = "__NOT DEFINED___"):
+#------------------------------------------------------------------------------
+    from datetime import datetime
     global _UXTST_SCREENSHOTS_COUNTER_    
     if (name == "__NOT DEFINED___"):
         name = "Screenshot " + str(_UXTST_SCREENSHOTS_COUNTER_)
         _UXTST_SCREENSHOTS_COUNTER_ = _UXTST_SCREENSHOTS_COUNTER_ + 1
     sleep(1)
     _screenshot(name)
-    _html("<tr><td></td><td></td><td>"+name+"</td><td></td><td>"+_htmlimg(name)+"</td><td></td></tr>")
+    _tr("",None,name,"",name)
+    #_html("<tr><td>"+str(datetime.now())+"</td><td></td><td></td><td>"+name+"</td><td></td><td>"+_htmlimg(name)+"</td><td></td></tr>")
     
+#------------------------------------------------------------------------------
 def findFirstFromLeft(pattern):
+#------------------------------------------------------------------------------
     try:
         fs = findAll(text)
         sorted_fs = sorted(fs, key=lambda m:m.x)
@@ -270,47 +318,65 @@ def findFirstFromLeft(pattern):
     except FindFailed:
         return False
 
+#------------------------------------------------------------------------------
 def question(title,question): 
-    response = javax.swing.JOptionPane.showConfirmDialog(None, question,"WWUX Tests: " + title, javax.swing.JOptionPane.YES_NO_OPTION,javax.swing.JOptionPane.QUESTION_MESSAGE)
+#------------------------------------------------------------------------------
+    response = javax.swing.JOptionPane.showConfirmDialog(None, question,"UX Tests: " + title, javax.swing.JOptionPane.YES_NO_OPTION,javax.swing.JOptionPane.QUESTION_MESSAGE)
     if response == 0:
         return True
     else:
         return False
 
+#------------------------------------------------------------------------------
 def alert(title,message):
+#------------------------------------------------------------------------------
     response = javax.swing.JOptionPane.showMessageDialog(None, question,"UX Tests: " + title, javax.swing.JOptionPane.YES_NO_OPTION,javax.swing.JOptionPane.ERROR_MESSAGE)
 
+#------------------------------------------------------------------------------
 def observeWholeScreen():
-    scanWholeScreen()
-    
-def scanWholeScreen():
+#------------------------------------------------------------------------------
     morphTo(Screen())
-
+    
+#------------------------------------------------------------------------------
 def restrictObservationTo(pattern):
+#------------------------------------------------------------------------------
     restrictScan(pattern)
     
-def restrictScan(pattern):
+#------------------------------------------------------------------------------
+def restrictScanToWindowContaining(pattern):
+#------------------------------------------------------------------------------
     click(pattern)
-    reg = App.focusedWindow()
-    morphTo(reg)
+    restrictScanToFocusedWindow()
 
+#------------------------------------------------------------------------------
 def restrictScanToFocusedWindow():
+#------------------------------------------------------------------------------
     reg = App.focusedWindow()
     morphTo(reg)
     
+#------------------------------------------------------------------------------
 def openApplication(command):
+#------------------------------------------------------------------------------
     if command.find(os.path) == -1:
-        command = os.environ["USERPROFILE"]+os.sep+"Desktop"+os.sep+command
-    #popup("Sorry, but you made a mistake using MXUX !\n\n" + message);        
+        command = os.path.join(_getDesktopPath,command)
     openApp(command)
 
+#------------------------------------------------------------------------------
 def AppLaunched():
+#------------------------------------------------------------------------------
     if (os.getenv("UXTST_APP_STARTED","") != ""):
         if os.environ["UXTST_APP_STARTED"] == "YES":
             return True;
     return False;
+
+#------------------------------------------------------------------------------
+def commentTest(comment):
+#------------------------------------------------------------------------------
+    _reportComment(comment)
+
 ###############################################################################   
-# INTERNAL FUNCTIONS (DO NOT USE)
+# INTERNAL FUNCTIONS 
+# (PLEASE DO NOT USE, they can change at any time)
 ###############################################################################        
    
 def _screenshot(name):
@@ -323,7 +389,7 @@ def _screenshot(name):
     ImageIO.write(capture, "png", File(_UXTST_OUTPUT_PATH_ + name+".png"))
                         
 def _error(message):
-    popup("Sorry, but you made a mistake using MXUX !\n\n" + message);
+    popup("Sorry, but you made a mistake using UXTST !\n\n" + message);
 
 def _new_html(text):
     file = open(_UXTST_OUTPUT_PATH_ + _UXTST_HTML_FILE_,"w")
@@ -352,29 +418,59 @@ def _log(text):
     file.write(str(datetime.now())+" "+ text + "\n")
     file.close()
 
-def _logOK(text,delay=0):
+def _tr(assertion,status,message,waited,screenshot="",pattern="",isComment=False):
+    from datetime import datetime
+    if isComment:
+        comment = " class='comment'"
+    else:
+        comment = ""
+    if status == True:
+        s = "<TD class='success'>Success</TD>";
+    elif status == False:
+        s = "<TD class='error'>Failure "+str(_UXTST_ASSERT_FAIL_COUNTER_)+"</TD>"
+    else:
+        s = "<TD></TD>"
+    _html("<TR" + comment + "><TD>" + str(datetime.now()) + "</TD><TD>" + assertion + "</TD>" + s +"<TD>"+ message + "</TD><TD>"+waited+"</TD><TD>"+_htmlimg(screenshot)+"</TD><TD>"+_htmlimg(pattern)+"</TD></TR>")
+    
+
+def _reportComment(comment):
+    _log("# " + comment)
+    _tr("",None,comment,"","","",True)
+    
+def _reportTestSuccess(origin,text,wait=0,delay=0):
     from datetime import datetime,timedelta
     global _UXTST_ASSERT_COUNTER_
-    if delay == 0:
-        delay = timedelta()
+    if wait == 0:
+        wait = timedelta()
+    if (delay == 0):
+        delaystr = ""
+    else:
+        delaystr = " (&lt;"+str(delay)+"s)"
     _UXTST_ASSERT_COUNTER_ =_UXTST_ASSERT_COUNTER_ +1
-    _log("------ok: " + text)
-    _html("<TR><TD>"+str(datetime.now())+"</TD><TD>Success</TD><TD>"+ text + "</TD><TD>"+_seconds(delay)+"</TD><TD></TD><TD></TD></TR>")
+    _log(origin + " succeeded: " + text)
+    _tr(origin,True,text,_seconds(wait)+"s"+delaystr)
 
-def _logKO(text,delay=0):
+def _reportTestFailure(origin, text,wait=0,delay=0):
     from datetime import datetime,timedelta
     global _UXTST_ASSERT_FAIL_COUNTER_
     global _UXTST_ASSERT_COUNTER_
-    if delay == 0:
-        delay = timedelta()    
+    if wait == 0:
+        wait = timedelta()    
+    if (delay == 0):
+        delaystr = ""
+    else:
+        delaystr = " (&gt;"+str(delay)+"s)"
     _UXTST_ASSERT_FAIL_COUNTER_ =_UXTST_ASSERT_FAIL_COUNTER_ +1   
     _UXTST_ASSERT_COUNTER_ =_UXTST_ASSERT_COUNTER_ +1   
     _screenshot("Fail " + str(_UXTST_ASSERT_FAIL_COUNTER_))
-    _log("*FAIL " + str(_UXTST_ASSERT_FAIL_COUNTER_)+"*: " + text)
-    _html("<TR><TD>"+str(datetime.now())+"</TD><TD class='error'>Failure "+str(_UXTST_ASSERT_FAIL_COUNTER_)+"</TD><TD>"+ text + "</TD><TD>"+_seconds(delay)+"</TD><TD>" + _htmlimg("Fail "+ str(_UXTST_ASSERT_FAIL_COUNTER_))+"</TD>"+"<TD>"+_htmlimg("Fail "+ str(_UXTST_ASSERT_FAIL_COUNTER_) +" pattern")+"</TD></TR>")             
+    _log("FAIL " + str(_UXTST_ASSERT_FAIL_COUNTER_)+", " + origin + " failed:" + text)
+    _tr(origin,False,text,_seconds(wait)+"s"+delaystr,"Fail "+ str(_UXTST_ASSERT_FAIL_COUNTER_),"Fail "+ str(_UXTST_ASSERT_FAIL_COUNTER_) +" pattern")
 
 def _htmlimg(name):
-    return "<A HREF='"+name+".png'><IMG src='"+name+".png' height='40' border=0></A>"
+    if name != "":
+        return "<A HREF='"+name+".png'><IMG src='"+name+".png' height='40' border=0></A>"
+    else:
+        return ""
 
 def _seconds(date):
     s = date.seconds + date.days * 3600.0 * 24 + int(date.microseconds/100000)/10.0
@@ -417,4 +513,7 @@ def _out(txt):
     print "UXTST>" + txt
 
 def _isOnWindows():
-    return os.sep == "\\";
+    return os.sep == "\\"
+
+def _getDesktopPath():
+    return os.path.join(os.path.expanduser("~"),'Desktop')
