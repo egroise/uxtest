@@ -6,8 +6,9 @@
 # \___/ /_/\_\   |_| \___||___/ \__||___/  v1.1 - May 2014
 #                                        
 ###############################################################################
-# Author : Eric GROISE
-# More information : https://github.com/egroise/uxtest/wiki
+# Author: Eric GROISE
+# More information: https://github.com/egroise/uxtest/wiki
+# Documentation: https://github.com/egroise/uxtest/wiki/Documentation
 # Under MIT License: https://github.com/egroise/uxtest/blob/master/LICENSE
 ###############################################################################                                                      
 
@@ -200,7 +201,10 @@ def visible(pattern, param1 = "_UNDEFINED_", param2 = "_UNDEFINED_"):
         _out(_picfind(pattern))
         shutil.copy(_picfind(pattern),os.path.join(_UXTST_OUTPUT_PATH_,"Fail " + str(_UXTST_ASSERT_FAIL_COUNTER_) + " pattern.png"))
         return False  
-    
+
+def assertNotVisible(pattern, message = ""):
+    return notVisible(pattern,message)
+
 #------------------------------------------------------------------------------
 def notVisible(pattern, message = ""):
 #------------------------------------------------------------------------------
